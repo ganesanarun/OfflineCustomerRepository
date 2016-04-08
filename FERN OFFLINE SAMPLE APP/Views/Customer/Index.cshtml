@@ -1,0 +1,64 @@
+﻿@model IEnumerable<FERN_OFFLINE_SAMPLE_APP.Models.Customer>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<p>
+    @Html.ActionLink("Create New Customer", "Create")
+</p>
+
+
+<h2>Customers List</h2>
+<table id="customerlistTable">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.CustomerName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Address)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Mobile)
+        </th>
+        @*<th></th>*@
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(_ => item.CustomerName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Address)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Mobile)
+        </td>
+        @*<td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.CustomerID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.CustomerID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.CustomerID })
+        </td>*@
+    </tr>
+}
+
+</table>
+
+<p>
+    <input type="button" value="Send Local Customer Data to the Server When Online" id="RemoteUpdate" />
+</p>
+
+@section Scripts {
+<script type="text/javascript">
+    $("#RemoteUpdate").click(function (event) {
+       
+        systemDB.transaction(function (transaction) {
+           
+            transaction.executeSql("SELECT * FROM Customers;",[], dataHandler, errorHandler);
+        }); 
+    });
+    
+</script>
+}

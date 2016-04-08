@@ -1,0 +1,239 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link rel="StyleSheet" type="text/css" href="~/Content/Site.css" />
+    <style>
+        body
+        {
+            margin:0 auto;
+            max-width: 920px;
+            
+        }
+        #main-content
+        {
+            background-color:azure;
+            box-shadow: 10px 10px 5px #888888;
+            padding:10px;
+        }
+        h1
+        {
+            font:normal 30pt Arial;
+            color:#000000;
+            text-shadow: 0 1px 0 #ccc,  0 2px 0 #c9c9c9,  0 3px 0 #bbb, 0 4px 0 #b9b9b9, 0 5px 0 #aaa, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1),
+                         0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15);
+            text-align:center;
+        }
+        table
+        {
+            width:100%;
+            border-collapse:collapse;
+
+        }
+        table td, table th{ 
+		padding:7px; 
+        border:#4e95f4 1px solid;
+	         }
+	/* Define the default color for all the table rows */
+	table tr{
+		background: #b8d1f3;
+	}
+	/* Define the hover highlight color for the table row */
+    table tr:hover {
+          background-color: #ffff99;
+    }
+
+        input[type="button"], input[type=submit], a
+        {
+        	-moz-box-shadow:inset 0px 1px 0px 0px #97c4fe;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #97c4fe;
+	box-shadow:inset 0px 1px 0px 0px #97c4fe;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #3d94f6), color-stop(1, #1e62d0));
+	background:-moz-linear-gradient(top, #3d94f6 5%, #1e62d0 100%);
+	background:-webkit-linear-gradient(top, #3d94f6 5%, #1e62d0 100%);
+	background:-o-linear-gradient(top, #3d94f6 5%, #1e62d0 100%);
+	background:-ms-linear-gradient(top, #3d94f6 5%, #1e62d0 100%);
+	background:linear-gradient(to bottom, #3d94f6 5%, #1e62d0 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#3d94f6', endColorstr='#1e62d0',GradientType=0);
+	background-color:#3d94f6;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #337fed;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #1570cd;
+        }
+        a:hover, input[type="button"]:hover, input[type=submit]:hover
+        {
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
+	        background:-moz-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+	        background:-webkit-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+	        background:-o-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+	        background:-ms-linear-gradient(top, #1e62d0 5%, #3d94f6 100%);
+	        background:linear-gradient(to bottom, #1e62d0 5%, #3d94f6 100%);
+	        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6',GradientType=0);
+	        background-color:#1e62d0;
+        }
+        a:active, input[type="button"]:active, input[type=submit]:active
+        {
+            position:relative;
+	        top:1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <h1> OFFLINE Demo Application </h1>
+        @RenderBody()
+    </div>
+   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            initDB();
+        });
+
+        var systemDB;
+
+        /*! Initialize the systemDB global variable. */
+        function initDB() {
+            try
+            {
+                if(!window.openDatabase)
+                {
+                    alert('not supported');
+                }
+                else
+                {
+                    var shortName = 'customerlocaldatabase';
+                    var version = '1.0';
+                    var displayName = 'Used To Store Locally When OFFLINE';
+                    var maxSize = 65536;
+                    var myDB = openDatabase(shortName, version, displayName, maxSize);
+                }
+
+            }
+            catch(e)
+            {
+                // Error handling code goes here
+                if(e == INVALID_STATE_ERR)
+                {
+                    // Version number mismatch
+                    alert("Invalid database version.");
+
+                }
+                else
+                {
+                    alert("Unknown error " + e + ".");
+                }
+                return;
+            }
+            //alert("Database is" + myDB);
+            createTables(myDB);
+            systemDB = myDB;
+          
+        }
+
+        function createTables(db)
+        {
+            if(0)
+            {
+                db.transaction(
+                    function(transaction)
+                    {
+                        transaction.executeSql('DROP TABLE Customers;');
+                    }
+
+                    );
+            }
+            db.transaction(
+
+                function (transaction)
+                {
+                    transaction.executeSql('CREATE TABLE IF NOT EXISTS Customers(CustomerID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'
+                     + 'CustomerName TEXT, Address TEXT, Mobile TEXT);', [], nullDataHandler, killTransaction);
+                    //transaction.executeSql('INSERT INTO Customers(CustomerName,Address,Mobile) VALUES ("MARK","GANESAN","900000");', [], nullDataHandler, killTransaction);
+                }
+
+                );
+        }
+
+        /*! When passed as the error handler, this silently causes a transaction to fail. */
+        function killTransaction(transaction, error) {
+            return true; // fatal transaction error
+        }
+
+        /*! This is used as a data handler for a request that should return no data. */
+        function nullDataHandler(transaction, results) {
+        }
+        function dataHandler(transaction, results) {
+
+            if (results.rows.length > 0) {
+                for (var i = 0; i < results.rows.length; i++) {
+                    var row = results.rows.item(i);
+                    $.ajax(
+                   {
+                   cache: false,
+                   async: true,
+                   type: "POST",
+                   url: '/Customer/Create',
+                   data: {
+                       CustomerName: row['CustomerName'],
+                       Address: row['Address'],
+                       Mobile: row['Mobile']
+                        },
+                   success: function (data) {
+                       addCustomerToTheTable(row['CustomerName'], row['Address'], row['Mobile']);
+                       clearCustomers(row['CustomerID']);
+                       clearControls();
+                   }
+                   //},
+                   //complete: function()
+                   //{
+                   //    alert("Customers Added Successfully");
+                   //    clearCustomers();
+                   //}
+                }).fail(function () { alert("error!"); });
+                }
+                alert("Customers stored locally added to the server successfully, please refresh the screen to see the effect.");
+            }
+            else
+            {
+                alert('No customers stored in the local server to add in the remote server');
+            }
+        }
+        function errorHandler(transaction, error) {
+            // error.message is a human-readable string.
+            // error.code is a numeric error code
+            alert('Oops. Error was ' + error.message + ' (Code ' + error.code + ')');
+            // Handle errors here
+            var we_think_this_error_is_fatal = true;
+            if (we_think_this_error_is_fatal) return true;
+            return false;
+        }
+        function clearCustomers(customerID)
+        {
+            systemDB.transaction(function (transaction) {
+                transaction.executeSql('DELETE FROM Customers WHERE CustomerID = ?;',[customerID]);
+
+            });
+        }
+        function addCustomerToTheTable(customerName, address, mobile)
+        {
+            var $table = $("#customerlistTable");
+            $table.append("<tr>" + "<td>" + customerName + "</td>" + "<td>" + address + "</td>" + "<td>" + mobile + "</td>" + "</tr>");
+            
+        }
+    </script>
+          @RenderSection("scripts", required: false)
+</body>
+</html>

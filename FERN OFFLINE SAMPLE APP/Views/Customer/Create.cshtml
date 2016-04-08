@@ -1,0 +1,100 @@
+﻿@model FERN_OFFLINE_SAMPLE_APP.Models.Customer
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create Customer</h2>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "CreateCustomerForm"}))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Customer</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.CustomerName)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.CustomerName)
+            @Html.ValidationMessageFor(model => model.CustomerName)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Address)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Address)
+            @Html.ValidationMessageFor(model => model.Address)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Mobile)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.Mobile)
+            @Html.ValidationMessageFor(model => model.Mobile)
+        </div>
+
+        <p>
+            <input type="submit" value="Add Customer" id="StoreGlobally"/>
+            <input type="button" value="Store Customer Locally" id="StoreLocally"/>
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $("#CreateCustomerForm").submit(function (event) {
+            event.preventDefault();
+            //alert($(this).attr('action'));
+            //alert($(this).serialize());
+            var name = $("#CustomerName").val();
+            var address = $("#Address").val();
+            var mobile = $("#Mobile").val();
+            $.ajax(
+             {
+                   cache: false,
+                    async: true,
+                    type: "POST",
+                    url: $(this).attr('action'),
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        addCustomerToTheTable(name, address, mobile);
+                        alert("Customer Added Successfully");
+                        clearControls();
+                    }
+                    //complete: function()
+                    //{
+                    //    window.location = host;
+                    //}
+                }).fail(function () { alert("error!"); });
+        });
+        $("#StoreLocally").click(function (event) {
+            event.preventDefault();
+            var name = $("#CustomerName").val();
+            var address = $("#Address").val();
+            var mobile = $("#Mobile").val();
+            systemDB.transaction(
+                function(transaction)
+                {
+                    transaction.executeSql('INSERT INTO Customers(CustomerName,Address,Mobile) VALUES (?,?,?);', [name, address, mobile], nullDataHandler, killTransaction);
+                    clearControls();
+                }
+                );
+        });
+        function clearControls()
+        {
+            $("#Address").val("");
+            $("#CustomerName").val("");
+            $("#Mobile").val("");
+        }
+    </script>
+    @Scripts.Render("~/bundles/jqueryval")
+}
